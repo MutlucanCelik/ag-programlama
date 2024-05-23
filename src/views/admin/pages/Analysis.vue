@@ -89,6 +89,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -103,7 +104,7 @@ import {
   Legend
 } from 'chart.js'
 import { Line,Doughnut,Pie,Radar,PolarArea } from 'vue-chartjs'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 
 ChartJS.register(
@@ -129,6 +130,46 @@ export default {
     PolarArea
   },
   setup(){
+        const datalar = ref({})
+    
+        function test(data){
+            const result = [];
+
+    data.forEach(item => {
+        const newData = {
+            name: item.user_id,
+            children: []
+        };
+
+        item.products.forEach(productCategory => {
+            const categoryData = {
+                name: productCategory.category,
+                children: []
+            };
+
+            productCategory.product_ids.forEach(product => {
+                categoryData.children.push({ name: product });
+            });
+
+            newData.children.push(categoryData);
+        });
+
+        result.push(newData);
+    });
+
+    return result;
+        }
+        onMounted(async() => {
+           const response = await axios.get('http://localhost:5000/userv3')
+           console.log(data2)
+            console.log(response.data)
+            console.log(test(response.data))
+            test(response.data).forEach(i => {
+                let svg = drawTreeChart(i)
+                document.querySelector('#network_chart').appendChild(svg);
+            })
+           //console.log(printData(response.data))
+        })
      const polarData = {
    
         labels: [
